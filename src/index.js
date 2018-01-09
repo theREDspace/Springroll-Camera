@@ -30,16 +30,6 @@
       }
     }
 
-    delete(index) {
-      this._file(
-        index,
-        () => {
-          console.log("File was deleted");
-        },
-        2
-      );
-    }
-
     /**
      * @private
      * Writes data to the local file system
@@ -60,7 +50,15 @@
       });
     }
 
-    _toBlob(b64Data, contentType = "", sliceSize = 512) {
+    /**
+     * Converts a base64 string to blob
+     * @private
+     * @param {*} b64Data base 64 string to be converted to blob
+     * @param {*} contentType content type of blob, default is image/png
+     * @param {*} sliceSize how large the slices of the array should be
+     * @returns {Blob} Blob of base64 string
+     */
+    _toBlob(b64Data, contentType = "image/png", sliceSize = 512) {
       const byteCharacters = atob(b64Data);
       const byteArrays = [];
 
@@ -139,10 +137,11 @@
     }
 
     /**
-     * Opens up the mobile camera and returns a base64 image string if successful
+     * Opens the device camera and saves it to local storage
+     * @param {function} callback function to be called when saving the photo to storage is complete
      */
     openCamera(callback) {
-      return navigator.camera.getPicture(
+      navigator.camera.getPicture(
         image => {
           this.savePhoto(image, callback);
         },
@@ -152,13 +151,12 @@
     }
 
     /**
-     * Takes a screenshot of the canvas and stores it in to local storage
+     * Takes a screenshot of the canvas and puts it in to device storage
      * @param {string} canvasId canvas element id
      */
     saveCanvas(canvasId = "stage", callback) {
       const image = document.getElementById(canvasId).toDataURL();
       this.savePhoto(image, callback);
-      return image;
     }
 
     /**
@@ -188,6 +186,20 @@
           }, this.err);
         },
         this._err
+      );
+    }
+
+    /**
+     * Deletes file at target index
+     * @param {*} index index of file to be deleted
+     */
+    delete(index) {
+      this._file(
+        index,
+        () => {
+          console.log("File was deleted");
+        },
+        2
       );
     }
   }
