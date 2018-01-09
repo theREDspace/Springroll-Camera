@@ -30,6 +30,16 @@
       }
     }
 
+    delete(index) {
+      this._file(
+        index,
+        () => {
+          console.log("File was deleted");
+        },
+        2
+      );
+    }
+
     /**
      * @private
      * Writes data to the local file system
@@ -83,15 +93,25 @@
      * @param {boolean} write write to file or not
      * @param {*} data data to be written if write is set to true
      */
-    _file(fileIndex, callback, write = false, data = "") {
+    _file(fileIndex, callback, action = 0, data = "") {
+      const create = action === 1 ? true : false;
+
       this.FS.root.getFile(
         `image${fileIndex}.png`,
-        { create: true, exclusive: false },
+        { create: create, exclusive: false },
         fileEntry => {
-          if (write) {
-            callback(this._writeFile(fileEntry, this._toBlob(data), callback));
-          } else {
-            callback(fileEntry.toURL());
+          switch (action) {
+            case 1: // write to file
+              callback(
+                this._writeFile(fileEntry, this._toBlob(data), callback)
+              );
+              break;
+            case 2: // delete file
+              fileEntry.remove(callback, this._err);
+
+            default:
+              callback(fileEntry.toURL());
+              break;
           }
         }
       );
@@ -115,7 +135,7 @@
         this.lastSavedIndex = 0;
       }
 
-      this._file(this.lastSavedIndex, callback, true, imageBlob);
+      this._file(this.lastSavedIndex, callback, 1, imageBlob);
     }
 
     /**
