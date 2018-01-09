@@ -1,7 +1,9 @@
-/**
- * @namespace springroll
- */
+const CordovaSpringRollCamera = null;
 (function() {
+  /**
+   * @requires cordova-plugin-file
+   * @requires cordova-plugin-camera
+   */
   class SpringRollCamera {
     /**
      * @constructor
@@ -208,6 +210,15 @@
   document.addEventListener("deviceready", onDeviceReady, false);
 
   function onDeviceReady() {
-    namespace("springroll").ScreenShot = new SpringRollCamera();
+    window.requestFileSystem(
+      LocalFileSystem.PERSISTENT,
+      0,
+      fileStorage => {
+        CordovaSpringRollCamera = new SpringRollCamera(fileStorage);
+      },
+      err => {
+        console.log(`Error getting permissions to file system: \n ${err}`);
+      }
+    );
   }
 })();
