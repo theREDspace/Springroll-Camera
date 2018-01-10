@@ -1,0 +1,20 @@
+<plugin
+  xmlns="http://apache.org/cordova/ns/plugins/1.0"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  id="cordova-springroll-camera"
+  version="1.0.0">
+
+  <name>Springroll Camera</name>
+  <description>
+    A simple interface to simplify working with the camera and file system
+    when working with Springroll
+  </description>
+  <license>Apache 2.0</license>
+  <keywords>cordova,file</keywords>
+  <dependency id="cordova-plugin-file" version="4.3.3" />
+  <dependency id="cordova-plugin-camera" version="2.4.1" />
+
+  <js-module src="www/plugin.js" name="springroll-camera">
+    <clobbers target="springrollCamera"/>
+  </js-module>
+</plugin>
