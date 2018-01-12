@@ -6,22 +6,28 @@ class SpringRollCamera {
    * @param {object} options https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-camera/#cameracameraoptions--object
    */
   constructor(
-    FS = null,
+    errCallback = null,
     STORAGE_LIMIT = 10,
+    FS = null,
     options = {
       destinationType: 0,
-      encodingType: 1,
       saveToPhotoAlbum: false
     }
   ) {
+    this.FILE = {
+      READ: 0,
+      WRITE: 1,
+      DELETE: 2
+    };
     this.FILE_INDEX = "PHOTO_LAST_SAVED_INDEX";
+    this.err = errCallback;
     this.FS = FS;
     this.STORAGE_LIMIT = STORAGE_LIMIT;
     this.options = options;
 
     this.lastSavedIndex = localStorage.getItem(this.FILE_INDEX);
 
-    if (null == this.lastSavedIndex) {
+    if (null === this.lastSavedIndex) {
       this.lastSavedIndex = 0;
     }
   }
@@ -87,18 +93,18 @@ class SpringRollCamera {
    * @param {boolean} write write to file or not
    * @param {*} data data to be written if write is set to true
    */
-  _file(fileIndex, callback, action = 0, data = "") {
-    const create = action === 1 ? true : false;
+  _file(fileIndex, callback, action = this.FILE.READ, data = "") {
+    const create = action !== this.FILE.DELETE ? true : false;
 
     this.FS.root.getFile(
       `image${fileIndex}.png`,
       { create: create, exclusive: false },
       fileEntry => {
         switch (action) {
-          case 1: // write to file
+          case this.FILE.WRITE: // write to file
             callback(this._writeFile(fileEntry, this._toBlob(data), callback));
             break;
-          case 2: // delete file
+          case this.FILE.DELETE: // delete file
             fileEntry.remove(callback, this._err);
 
           default:
@@ -116,6 +122,7 @@ class SpringRollCamera {
    */
   _err(err) {
     console.log(`SpringRoll Camera Error: ${err}`);
+    this.err(err);
   }
 
   /**
@@ -127,7 +134,7 @@ class SpringRollCamera {
       this.lastSavedIndex = 0;
     }
 
-    this._file(this.lastSavedIndex, callback, 1, imageBlob);
+    this._file(this.lastSavedIndex, callback, this.FILE.WRITE, imageBlob);
   }
 
   /**
@@ -193,7 +200,7 @@ class SpringRollCamera {
       () => {
         console.log("File was deleted");
       },
-      2
+      this._FILE.DELETE
     );
   }
 }
