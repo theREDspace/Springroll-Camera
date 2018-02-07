@@ -32,6 +32,7 @@ class SpringRollCamera {
     }
   }
 
+
   /**
    * @private
    * Writes data to the local file system
@@ -102,7 +103,7 @@ class SpringRollCamera {
       fileEntry => {
         switch (action) {
           case this.FILE.WRITE: // write to file
-            callback(this._writeFile(fileEntry, this._toBlob(data), callback));
+            this._writeFile(fileEntry, this._toBlob(data), callback);
             break;
           case this.FILE.DELETE: // delete file
             fileEntry.remove(callback, this._err);
@@ -122,6 +123,7 @@ class SpringRollCamera {
    */
   _err(err) {
     console.log(`SpringRoll Camera Error: ${err}`);
+    console.log(err);
     this.err(err);
   }
 
@@ -173,9 +175,9 @@ class SpringRollCamera {
    * Returns a array of file paths strings for all images stored in local storage
    * @returns {array} returns all images stored in local storage
    */
-  getAllPhotos(callback, path = "files") {
+  getAllPhotos(callback) {
     window.resolveLocalFileSystemURL(
-      cordova.file.dataDirectory + path,
+      this.FS.root.nativeURL,
       fileSystem => {
         let reader = fileSystem.createReader();
         reader.readEntries(entries => {
@@ -184,7 +186,7 @@ class SpringRollCamera {
             outputArray.push(entries[i].toURL());
           }
           callback(outputArray);
-        }, this.err);
+        }, this._err);
       },
       this._err
     );
